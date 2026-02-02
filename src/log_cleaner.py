@@ -30,8 +30,6 @@ ej: 1-5-2023 -> 2023-05-01).
 '''
 import re
 
-import main
-
 DATE_PATTERN: re.Pattern = re.compile(r'''
     (\d{1,2})      # Grupo 1: Mes (1 o 2 dígitos)
     ([./-])        # Grupo 2: Separador (- o / o .)

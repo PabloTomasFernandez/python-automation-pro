@@ -1,5 +1,6 @@
 import shelve
 from pathlib import Path
+import os
 
 """
 Micro-Reto 1: Tu jefe te pide un script que cree un archivo llamado notas.txt 
@@ -61,16 +62,64 @@ def save_inventory(items: list[str], db_name: str = DB_FILENAME) -> None:
 
 
 ## El Archivador de Logs Inteligente
+import shelve
+import shutil
+from pathlib import Path
 
-CHARACTER: str = "*.txt"
+# Constantes en UPPER_CASE (Clean Code)
+PATTERN: str = "*.txt"
 
-def explore_file_type(character:str, path) -> list[str]:
-    
-    folder_path: Path = Path.cwd()
-    
-    files_character = folder_path.glob(character)
-    
-    return files_character
+def explore_files(pattern: str) -> list[Path]:
+    """Explora el CWD buscando archivos que coincidan con el patrón[cite: 2484, 2485]."""
+    # glob() devuelve un generador; lo convertimos a lista para facilitar el manejo.
+    return list(Path.cwd().glob(pattern))
+
+def save_stats(file_name: str, count: int) -> None:
+    """Persiste el conteo de errores en una base binaria[cite: 2715, 2718]."""
+    db_path: str = str(Path.cwd() / "estadisticas_db")
+    with shelve.open(db_path) as db:
+        db[file_name] = count # Asignación correcta al objeto shelve[cite: 2721].
+
+def process_logs() -> None:
+    """Lógica principal de procesamiento y limpieza de logs."""
+    files: list[Path] = explore_files(PATTERN)
+    report_path: Path = Path.cwd() / "reporte_critico.txt"
+    clean_dir: Path = Path.cwd() / "procesados" / "limpios"
+
+    for file_path in files:
+        # Evitar procesar el propio reporte si ya existe
+        if file_path.name == report_path.name:
+            continue
+
+        errors_found: list[str] = []
+        
+        try:
+            # Uso de Context Manager con encoding explícito[cite: 2623, 2688].
+            with open(file_path, mode="r", encoding="utf-8") as f:
+                for line in f:
+                    if "error" in line.lower():
+                        errors_found.append(line.strip())
+            
+            if errors_found:
+                # 1. Persistencia en TXT (Modo Append)[cite: 2656, 2658].
+                with open(report_path, mode="a", encoding="utf-8") as report:
+                    for err in errors_found:
+                        report.write(f"Archivo: {file_path.name} | {err}\n")
+                
+                # 2. Persistencia en Shelve[cite: 2709, 2712].
+                save_stats(file_path.name, len(errors_found))
+            else:
+                # 3. Limpieza: Mover archivos sin errores[cite: 2174].
+                clean_dir.mkdir(parents=True, exist_ok=True) # Asegurar destino[cite: 2343].
+                dest_path: Path = clean_dir / file_path.name
+                file_path.rename(dest_path) # Mover de forma Pythonica[cite: 2228].
+                
+        except Exception as e:
+            print(f"Error procesando {file_path.name}: {e}")
+
+if __name__ == "__main__":
+    process_logs()
+
 
 
 

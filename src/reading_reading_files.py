@@ -70,15 +70,15 @@ from pathlib import Path
 PATTERN: str = "*.txt"
 
 def explore_files(pattern: str) -> list[Path]:
-    """Explora el CWD buscando archivos que coincidan con el patrón[cite: 2484, 2485]."""
+    """Explora el CWD buscando archivos que coincidan con el patrón."""
     # glob() devuelve un generador; lo convertimos a lista para facilitar el manejo.
     return list(Path.cwd().glob(pattern))
 
 def save_stats(file_name: str, count: int) -> None:
-    """Persiste el conteo de errores en una base binaria[cite: 2715, 2718]."""
+    """Persiste el conteo de errores en una base binaria."""
     db_path: str = str(Path.cwd() / "estadisticas_db")
     with shelve.open(db_path) as db:
-        db[file_name] = count # Asignación correcta al objeto shelve[cite: 2721].
+        db[file_name] = count # Asignación correcta al objeto shelve.
 
 def process_logs() -> None:
     """Lógica principal de procesamiento y limpieza de logs."""
@@ -94,25 +94,25 @@ def process_logs() -> None:
         errors_found: list[str] = []
         
         try:
-            # Uso de Context Manager con encoding explícito[cite: 2623, 2688].
+            # Uso de Context Manager con encoding explícito.
             with open(file_path, mode="r", encoding="utf-8") as f:
                 for line in f:
                     if "error" in line.lower():
                         errors_found.append(line.strip())
             
             if errors_found:
-                # 1. Persistencia en TXT (Modo Append)[cite: 2656, 2658].
+                # 1. Persistencia en TXT (Modo Append).
                 with open(report_path, mode="a", encoding="utf-8") as report:
                     for err in errors_found:
                         report.write(f"Archivo: {file_path.name} | {err}\n")
                 
-                # 2. Persistencia en Shelve[cite: 2709, 2712].
+                # 2. Persistencia en Shelve.
                 save_stats(file_path.name, len(errors_found))
             else:
-                # 3. Limpieza: Mover archivos sin errores[cite: 2174].
-                clean_dir.mkdir(parents=True, exist_ok=True) # Asegurar destino[cite: 2343].
+                # 3. Limpieza: Mover archivos sin errores.
+                clean_dir.mkdir(parents=True, exist_ok=True) # Asegurar destino.
                 dest_path: Path = clean_dir / file_path.name
-                file_path.rename(dest_path) # Mover de forma Pythonica[cite: 2228].
+                file_path.rename(dest_path) # Mover de forma Pythonica.
                 
         except Exception as e:
             print(f"Error procesando {file_path.name}: {e}")

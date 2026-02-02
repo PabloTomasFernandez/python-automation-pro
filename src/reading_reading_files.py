@@ -36,41 +36,11 @@ list[str]. Debes guardarla en un archivo de shelve llamado mi_bodega bajo la
 llave "inventario".
 """
 
-
-¡Vaya cambio de ritmo! Has saltado directamente a la Sesión 3 (Persistencia / Archivos) usando el módulo shelve (Capítulo 10 del libro).
-
-Me gusta que estés explorando la persistencia de datos, pero como tu Tech Lead, debo mantener el orden. Tenemos un ticket crítico abierto (el validador de Regex) y me has entregado código de base de datos.
-
-Voy a revisar este snippet rápidamente porque tiene errores de concepto y estilo, y luego necesito que volvamos al Regex, porque sin validar los datos, no deberíamos estar guardándolos en ninguna base de datos (GIGO: Garbage In, Garbage Out).
-
-🔍 Code Review: persist_list
-1. Imports Fantasma (Critical): Estás usando shelve y Path sin importarlos. El código fallará con NameError.
-
-2. Inconsistencia de Idioma (Style): Volvemos al "Spanglish".
-
-Variable: ruta_db -> Debería ser db_path.
-
-Clave del diccionario: "inventario" -> Debería ser "inventory".
-
-Regla: Si el código está en inglés, las claves de la base de datos también.
-
-3. Hardcoding (Design): Estás definiendo la clave "inventario" dentro de la función. Si mañana quieres guardar "usuarios", tienes que reescribir la función. Hazla agnóstica.
-
-4. El Comentario [cite: 2719, 2721]: reference Veo que referencias el libro. shelve es genial para scripts rápidos, pero ten cuidado: crea archivos binarios que solo Python puede leer. Si quieres compartir datos con otro lenguaje (Javascript, C#), esto no sirve. (Veremos JSON después para eso).
-
-🛠️ Refactor Profesional
-Aquí tienes cómo se escribe esa función en un entorno de producción:
-
-Python
-import shelve
-from pathlib import Path
-from typing import List
-
 # Definimos constantes para nombres de archivo/claves
 DB_FILENAME = "warehouse_db"
 INVENTORY_KEY = "inventory"
 
-def save_inventory(items: List[str], db_name: str = DB_FILENAME) -> None:
+def save_inventory(items: list[str], db_name: str = DB_FILENAME) -> None:
     """
     Persiste una lista de items en una base de datos local (shelve).
     
@@ -91,6 +61,17 @@ def save_inventory(items: List[str], db_name: str = DB_FILENAME) -> None:
 
 
 ## El Archivador de Logs Inteligente
+
+CHARACTER: str = "*.txt"
+
+def explore_file_type(character:str, path) -> list[str]:
+    
+    folder_path: Path = Path.cwd()
+    
+    files_character = folder_path.glob(character)
+    
+    return files_character
+
 
 
 
